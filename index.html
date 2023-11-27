@@ -1,5 +1,6 @@
 <html>
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.13.1/xlsx.full.min.js"></script> 
 <style type="text/css">
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap');
@@ -99,7 +100,6 @@
       <input type="file" hidden accept=".pdf" id="fileID">
       <button class="btn">Choose File</button>
     </div>
-    <a id="downloadAnchorElem" style="display:none"></a>
   </div>
 </div>
 <script>
@@ -186,17 +186,14 @@
                 });
             });
         })).then(function(pages) {
+
           pdfText = pages.join("\n");
           result = parseCabalResume(pdfText);
-          console.log(JSON.stringify(result));
-          jsonFileName = e.target.files[0].name.replace("pdf", "json");
-          
-          var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(result));
-          var dlAnchorElem = document.getElementById('downloadAnchorElem');
-          dlAnchorElem.setAttribute("href",dataStr);
-          dlAnchorElem.setAttribute("download", jsonFileName);
-          dlAnchorElem.click();
-
+          excelFileName = e.target.files[0].name.replace("pdf", "xlsx");
+          var ws = XLSX.utils.json_to_sheet(result);
+          var wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, "Data");
+          XLSX.writeFile(wb, excelFileName)
         });
       });
     };
